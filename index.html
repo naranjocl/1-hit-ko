@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Cuántos golpes necesita cada clase para matar a cada monstruo de MapleStory Classic, arma por arma.">
+<meta name="description" content="Cuántos golpes necesita cada clase para matar a cada monstruo de MapleStory Classic, con experiencia por casteo, maná por kill y ranking de farmeo en Victoria Island.">
 <title>Calculadora de Golpes MapleStory</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -64,7 +64,8 @@ header.top{display:flex; gap:16px; align-items:flex-start; justify-content:space
 .panel + .panel{margin-top:18px}
 .pad{padding:16px}
 
-.controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:12px}
+.controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px 14px; align-items:end}
+.field label{display:block; min-height:15px}
 .field{display:flex; flex-direction:column; gap:5px; min-width:0}
 .field label{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:600}
 select,input[type=text],input[type=number]{
@@ -114,7 +115,39 @@ td.num,th.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabula
 .badge{font-size:10.5px; font-weight:600; padding:1px 7px; border-radius:999px; background:var(--good-soft); color:var(--good); margin-left:6px}
 .badge.acc{background:var(--warn-soft); color:var(--warn)}
 tr.milestone td{background:var(--good-soft)}
-.legend{font-size:12.5px; color:var(--muted); margin-top:10px; display:flex; flex-wrap:wrap; gap:14px}
+.legend{font-size:12.5px; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 18px}
+.legend span{max-width:46ch}
+.skname{font-size:10.5px; letter-spacing:0; text-transform:none; font-weight:700; white-space:nowrap}
+.skname img{vertical-align:-4px; margin-right:4px}
+.collbl{font-size:12px; color:var(--ink); font-weight:600; letter-spacing:0; text-transform:none; margin-top:2px}
+table.grid th.g0{background:var(--accent-soft)} table.grid th.g0 .skname{color:var(--accent-ink)}
+table.grid th.g1{background:var(--cold-soft)} table.grid th.g1 .skname{color:var(--cold)}
+table.grid th.g2{background:var(--good-soft)} table.grid th.g2 .skname{color:var(--good)}
+table.grid td.gs{border-left:2px solid var(--line)}
+tr.tsep td{background:var(--surface-2); color:var(--muted); font-weight:700; font-size:11px;
+  letter-spacing:.09em; text-transform:uppercase; padding:7px 10px; border-top:1px solid var(--line)}
+tbody tr.tsep:hover td{background:var(--surface-2)}
+table.grid .gs{border-left:2px solid var(--line)}
+
+table.grid th.gs{border-left:2px solid var(--surface)}
+table.grid th.sub2{font-size:10px; letter-spacing:.04em; padding-top:5px; padding-bottom:5px}
+table.grid thead tr:first-child th{border-bottom:none}
+table.grid td:nth-child(4), table.grid th:nth-child(4){border-left:1px solid var(--line-soft)}
+.sub{font-size:11px; line-height:1.3; margin-top:1px}
+.wcell{position:sticky; left:0; background:var(--surface); z-index:2; min-width:176px; box-shadow:1px 0 0 var(--line-soft)}
+.wname{font-weight:600}
+thead th{z-index:3}
+thead th.wcell, thead th:first-child{z-index:4}
+tbody tr:nth-child(even) td{background:var(--surface-2)}
+tbody tr:nth-child(even) .wcell{background:var(--surface-2)}
+tbody tr:hover td, tbody tr:hover .wcell{background:var(--accent-soft)}
+tbody tr:first-child .wcell{box-shadow:1px 0 0 var(--line-soft), inset 3px 0 0 var(--good)}
+.hero{display:flex; gap:18px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap}
+.tag{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; color:var(--good);
+  background:var(--good-soft); border-radius:999px; padding:4px 11px}
+.src{display:flex; gap:14px; flex-wrap:wrap; margin-top:6px}
+.src a{color:var(--accent-ink); text-decoration:none; border-bottom:1px solid var(--line)}
+.src a:hover{border-color:var(--accent)}
 .foot{margin-top:22px; font-size:12.5px; color:var(--muted)}
 .foot a{color:var(--accent-ink)}
 details.notes{margin-top:14px; border-top:1px solid var(--line-soft); padding-top:12px}
@@ -144,12 +177,13 @@ details.notes li{margin-bottom:5px; font-size:13px; color:var(--muted)}
 </style>
 
 <div class="wrap">
-  <header class="top">
-    <div>
+  <header class="top hero">
+    <div style="flex:1 1 380px">
       <p class="eyebrow">MapleStory Classic · NaranjoCL</p>
       <h1>¿Cuántos golpes para matarlo?</h1>
-      <p class="sub">Elige monstruo y clase. La tabla dice los golpes por nivel, el nivel de skill que necesitas y desde qué nivel lo matas de un solo hit.</p>
+      <p class="sub">Elige monstruo y clase. La tabla compara todas las armas de ese nivel: golpes para matar, experiencia por casteo y maná gastado.</p>
     </div>
+    <span class="tag">Fórmulas del cliente · verificado contra NiaMeowDB</span>
   </header>
 
   <section class="panel pad">
@@ -190,18 +224,54 @@ details.notes li{margin-bottom:5px; font-size:13px; color:var(--muted)}
 
   <section class="panel" id="panel-weapons">
     <div class="pad" style="border-bottom:1px solid var(--line-soft)">
-      <p class="eyebrow">General</p>
-      <h2 style="margin:2px 0 14px">Todas las armas a un nivel</h2>
+      <h2 style="margin:0 0 14px">General</h2>
       <div style="display:flex; gap:14px; align-items:end; flex-wrap:wrap">
       <div class="field" style="max-width:150px"><label for="cmpLv">Nivel del personaje</label><input id="cmpLv" type="number" value="15" min="10" max="70"></div>
+      <div class="field" style="max-width:190px"><label for="cmpWt">Tipo de arma</label><select id="cmpWt"></select></div>
       <div class="field" style="max-width:190px"><label for="cmpSk">Nivel de skill</label><select id="cmpSk"></select></div>
       <div class="field" style="max-width:250px"><label for="ammo">Munición <span id="ammoIc"></span></label><select id="ammo"></select></div>
-      <div class="field" style="max-width:150px"><label for="watk">Ataque extra del arma</label><input id="watk" type="number" value="0" min="0" max="200" step="1"></div>
-      <div class="field" style="max-width:150px"><label for="gatk">Ataque de equipo</label><input id="gatk" type="number" value="0" min="0" max="200" step="1"></div>
+      <div class="field" style="max-width:150px"><label for="watk">Ataque extra del arma (scrolls)</label><input id="watk" type="number" value="0" min="0" max="200" step="1"></div>
+      <div class="field" style="max-width:150px"><label for="gatk">Ataque de guantes y buffs</label><input id="gatk" type="number" value="0" min="0" max="200" step="1"></div>
       </div>
     </div>
     <div class="scroller" id="out-weapons"></div>
     <div class="pad legend" id="leg-weapons"></div>
+  </section>
+
+  <section class="panel" id="panel-rank" style="margin-top:18px">
+    <div class="pad" style="border-bottom:1px solid var(--line-soft)">
+      <h2 style="margin:0 0 4px">Dónde farmear</h2>
+      <p class="dim" style="margin:0 0 14px; font-size:13px">Top 30 de monstruos por experiencia por casteo, con tu arma y tu skill.</p>
+      <div class="controls">
+        <div class="field"><label for="rkLv">Nivel</label><input id="rkLv" type="number" value="15" min="10" max="70"></div>
+        <div class="field"><label for="rkWep">Arma</label><select id="rkWep"></select></div>
+        <div class="field"><label for="rkSk">Skill</label><select id="rkSk"></select></div>
+        <div class="field"><label for="rkSkLv">Nivel de skill</label><select id="rkSkLv"></select></div>
+        <div class="field"><label for="rkAmmo">Munición <span id="rkAmmoIc"></span></label><select id="rkAmmo"></select></div>
+        <div class="field"><label for="rkWatk">Ataque extra del arma (scrolls)</label><input id="rkWatk" type="number" value="0" min="0" max="200"></div>
+        <div class="field"><label for="rkGatk">Ataque de guantes y buffs</label><input id="rkGatk" type="number" value="0" min="0" max="200"></div>
+      </div>
+      <div class="toggles" style="border-top:1px dashed var(--line); margin-top:14px; padding-top:12px">
+        <span class="tg"><label for="rkSort">Ordenar por</label>
+          <select id="rkSort" style="width:auto">
+            <option value="exp">EXP por casteo</option>
+            <option value="hits">Menos golpes</option>
+            <option value="total">EXP del monstruo</option>
+            <option value="level">Nivel del monstruo</option>
+          </select></span>
+        <span class="tg"><label for="rkHits">Golpes</label>
+          <select id="rkHits" style="width:auto">
+            <option value="0">Todos</option>
+            <option value="1">Solo 1 golpe</option>
+            <option value="2">Solo 2 golpes</option>
+            <option value="3">Solo 3 golpes</option>
+            <option value="4">4 o más</option>
+          </select></span>
+        <span class="tg"><input type="checkbox" id="rkHit" checked><label for="rkHit">Solo donde le pego (acierto 80% o más)</label></span>
+      </div>
+    </div>
+    <div class="scroller" id="out-rank"></div>
+    <div class="pad legend" id="leg-rank"></div>
   </section>
 
   <details class="notes panel pad" style="margin-top:18px">
@@ -209,7 +279,7 @@ details.notes li{margin-bottom:5px; font-size:13px; color:var(--muted)}
     <ul id="assumptions"></ul>
   </details>
 
-  <p class="foot" id="foot"></p>
+  <footer class="foot" id="foot"></footer>
 </div>
 
 <script>
@@ -574,6 +644,22 @@ const AMMO = [
   ["2061003","Mithril Arrows for Crossbows","xbow",3]
 ].map(a=>({id:a[0],n:a[1],g:a[2],atk:a[3]}));
 const AMMO_GROUP={Claw:"star",Bow:"bow",Crossbow:"xbow"};
+/* mapa con más spawns, solo Maple Island y Victoria (ids 2-63) */
+const MAPA={2:"Snail Hunting Ground I",3:"Snail Hunting Ground III",4:"Mushroom Garden",5:"The Field West of Amherst",
+6:"The Tree That Grew II",7:"The Tree That Grew II",8:"Thicket Around the Beach II",9:"Mushroom Garden",
+10:"L Forest I",11:"West Domain of Perion",12:"Damp Tree-Forest",13:"West Rocky Mountain III",14:"Line 1 <Area 1>",
+15:"The Forest North of Ellinia",16:"The Blue Mushroom Forest",17:"Transfer Area",18:"Dangerous Croko I",
+19:"Ant Tunnel IV",20:"East Rocky Mountain V",21:"Ant Tunnel III",22:"The Land of Wild Boar II",
+23:"The Cave of Evil Eye III",24:"Pig Park II",25:"Tree Dungeon, Forest Up North VI",29:"The Swamp of Despair I",
+30:"The Burnt Land V",31:"Sleepy Dungeon V",32:"Line 2 <Area 1>",33:"Sleepy Dungeon V",35:"Monkey Swamp I",
+36:"A Look-Out Shed Around the Beach",37:"The Tunnel That Lost Light I",38:"Monkey Swamp III",
+40:"East Rocky Mountain VII",41:"Hot Sand",43:"Line 2 <Area 3>",44:"Lorang and Clang",45:"Drake's Meal Table",
+46:"Dangerous Croko II",47:"The Forest of Evil II",48:"Golem's Temple III",49:"Sleepy Dungeon V",
+50:"Dangerous Valley II",51:"Wild Kargo's Area",52:"Sanctuary Entrance I",53:"Sanctuary Entrance IV",
+54:"Forgotten Entrance III",55:"Forgotten Entrance II",56:"Ant Tunnel Park",57:"Collision of Ice and Fire",
+58:"Perilous Descent I",59:"Forbidden Entrance",60:"Precipice of Darkness",61:"Lingering Regret",
+62:"Dilapidated Tomb",63:"Another Sanctuary"};
+const enVictoria=m=>!m.boss && m.id>=2 && m.id<=63;
 const ammoById=id=>AMMO.find(a=>a.id===id)||null;
 
 /* multiplicadores de arma: swing, stab, shoot, other */
@@ -591,6 +677,27 @@ const M20=[1,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10];
 const M30=[1,1,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,10];
 const M30H=[1,1,1,1,2,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,10];
 const lin=(base,step,max,cap)=>l=>l>=max?cap:base+step*(l-1);
+/* maná por casteo, nivel 1..max (OSMS) */
+const MP={
+  power_strike:[4,4,4,4,5,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12],
+  slash_blast:[4,4,4,4,5,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12],
+  rush:[40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,20],
+  energy_bolt:[8,8,8,8,9,9,9,10,10,11,11,12,12,13,13,14,14,15,15,16],
+  magic_claw:[10,10,10,10,11,11,11,12,12,13,13,14,14,15,15,16,17,18,19,20],
+  fire_arrow:[14,14,14,15,15,15,16,16,16,17,17,18,18,19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,26,28],
+  poison_breath:[20,20,22,22,22,24,24,24,26,26,26,28,28,28,30,30,30,32,32,32,34,34,34,36,36,36,38,38,38,40],
+  cold_beam:[11,11,12,12,12,13,13,13,14,14,14,15,15,15,16,16,16,17,17,17,18,18,18,19,19,19,20,20,20,22],
+  thunder_bolt:[20,20,22,22,22,24,24,24,26,26,26,28,28,28,30,30,30,32,32,32,34,34,34,36,36,36,38,38,38,40],
+  holy_arrow:[14,14,14,15,15,15,16,16,16,17,17,18,18,19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,26,28],
+  arrow_blow:[6,6,6,6,7,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14],
+  double_shot:[8,8,8,8,9,9,9,10,10,11,11,12,12,13,13,14,14,15,15,16],
+  arrow_bomb:[14,14,14,15,15,16,16,17,17,18,18,19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,26,27,27,28],
+  iron_arrow:[14,14,14,15,15,16,16,17,17,18,18,19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,26,27,27,28],
+  double_stab:[8,8,8,8,9,9,9,10,10,11,11,12,12,13,13,14,14,15,15,16],
+  lucky_seven:[8,8,8,8,9,9,9,10,10,11,11,12,12,13,13,14,14,15,15,16],
+  drain:[14,14,14,15,15,16,16,17,17,18,18,19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,26,27,27,28],
+  savage_blow:[14,14,14,14,15,15,15,16,16,16,19,19,19,19,20,20,20,21,21,21,24,24,24,25,25,25,26,26,26,28]
+};
 
 /* skills de ataque */
 const S = {
@@ -653,7 +760,8 @@ const JOBS = [
 ["power_strike","slash_blast","energy_bolt","magic_claw","arrow_blow","double_shot","lucky_seven","double_stab"].forEach(k=>S[k].t1=true);
 S.magic_claw.pre=1; S.double_shot.pre=1;
 S.lucky_seven.wtypes=["Claw"]; S.savage_blow.wtypes=["Dagger"]; S.double_stab.wtypes=["Dagger"];
-S.drain.wtypes=["Claw"]; S.arrow_bomb.wtypes=["Bow"]; S.iron_arrow.wtypes=["Crossbow"];
+Object.keys(MP).forEach(k=>{ if(S[k]) S[k].mp=MP[k]; });
+S.drain.wtypes=["Claw"]; S.arrow_blow.wtypes=["Bow","Crossbow"]; S.double_shot.wtypes=["Bow","Crossbow"]; S.arrow_bomb.wtypes=["Bow"]; S.iron_arrow.wtypes=["Crossbow"];
 
 const MOBS = MOB_CSV.trim().split("\n").map(r=>{
   const c=r.split(",");
@@ -842,6 +950,7 @@ const ammoImg=id=>(IMGS.A&&IMGS.A[id])?"data:image/png;base64,"+IMGS.A[id]:"";
 const ic=(src,h)=>src?'<img class="ic" src="'+src+'" alt="" style="height:'+h+'px">':"";
 const $=s=>document.querySelector(s);
 const fmt=n=>n.toLocaleString("es-CL");
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const pct=p=>Math.round(p*100)+"%";
 
 const elMob=$("#mob"), elJob=$("#job"),
@@ -853,7 +962,12 @@ const elOpts=$("#mobOpts");
 let pickIdx=-1, pickList=[];
 function renderPicker(q){
   const s=(q||"").trim().toLowerCase();
-  pickList = MOBS.filter(m=>!s||m.name.toLowerCase().includes(s)).slice(0,200);
+  const hit=MOBS.filter(m=>!s||m.name.toLowerCase().includes(s));
+  if(s) hit.sort((a,b)=>{
+    const pa=a.name.toLowerCase().startsWith(s)?0:1, pb=b.name.toLowerCase().startsWith(s)?0:1;
+    return pa-pb || a.level-b.level || a.name.localeCompare(b.name);
+  });
+  pickList = hit.slice(0,300);
   elOpts.innerHTML = pickList.length ? pickList.map((m,i)=>
     '<div class="opt" role="option" data-i="'+i+'">'+
       (mobImg(m.id)?'<img src="'+mobImg(m.id)+'" alt="">':'<span style="width:26px"></span>')+
@@ -891,17 +1005,17 @@ function syncJobControls(){
   $("#secbonus").closest(".field").querySelector("label").textContent =
     "Stat secundario ("+SN[job.secStat]+" de equipo)"+(job.cls==="mage"?" · solo precisión":"");
   $("#watk").closest(".field").querySelector("label").textContent =
-    job.cls==="mage" ? "Magia extra del arma" : "Ataque extra del arma";
+    job.cls==="mage" ? "Magia extra del arma (scrolls)" : "Ataque extra del arma (scrolls)";
   $("#gatk").closest(".field").querySelector("label").textContent =
-    job.cls==="mage" ? "Magia de equipo" : "Ataque de equipo";
+    job.cls==="mage" ? "Magia de guantes y buffs" : "Ataque de guantes y buffs";
   const b=job.buff;
   elBuff.closest(".tg").hidden=!b;
   if(b) elBuff.nextElementSibling.textContent = b.label+" activo";
   elMastery.closest(".tg").hidden=!job.mastery;
   elCmpLv.min=job.jobLv;
-  if(+elCmpLv.value<job.jobLv) elCmpLv.value=job.jobLv;
+  syncCmpWt();
   syncCmpSk();
-  if(+elCmpLv.value<job.jobLv) elCmpLv.value=job.jobLv;
+  syncRank();
 }
 
 function syncAmmo(keep){
@@ -994,6 +1108,12 @@ function renderVerdict(mob, job, o){
 }
 
 /* --- tab 3: comparar armas --- */
+function syncCmpWt(){
+  const job=currentJob(), prev=$("#cmpWt").value;
+  const tipos=[...new Set(job.weapons)];
+  $("#cmpWt").innerHTML='<option value="all">Todas</option>'+tipos.map(x=>'<option value="'+x+'">'+x+'</option>').join("");
+  $("#cmpWt").value=tipos.includes(prev)?prev:"all";
+}
 function syncCmpSk(){
   const job=currentJob(), o=opts();
   const l=clamp(+elCmpLv.value||job.jobLv, job.jobLv, 70);
@@ -1012,32 +1132,188 @@ function withAmmo(o){
 function renderWeapons(mob, job, o){
   o=withAmmo(o);
   const out=$("#out-weapons");
-  if(!mob){ out.innerHTML='<p class="empty">Elige un monstruo.</p>'; return; }
+  if(!mob){ out.innerHTML='<p class="empty">Elige un monstruo de la lista.</p>'; return; }
   const l=clamp(+elCmpLv.value||job.jobLv, job.jobLv, 70);
   const keys=job.skills;
-  const list=WEPS.filter(w=>job.weapons.includes(w.type)&&canEquip(l,job,w,o.mainBonus))
-    .sort((a,b)=>a.type.localeCompare(b.type)||b.req-a.req);
-  if(!list.length){ out.innerHTML='<p class="empty">Ninguna arma equipable a ese nivel.</p>'; return; }
-  const key= job.cls==="mage"?"mad":"pad";
   const pick=$("#cmpSk").value;
+  const stat= job.cls==="mage"?"mad":"pad";
+  const tf=$("#cmpWt").value||"all";
+  const list=WEPS.filter(w=>job.weapons.includes(w.type)&&(tf==="all"||w.type===tf)&&canEquip(l,job,w,o.mainBonus));
+  if(!list.length){ out.innerHTML='<p class="empty">Ninguna arma equipable a nivel '+l+'.</p>'; return; }
+
   const rows=list.map(w=>{
     const cells=keys.map(k=>{
       const cap=skillLevelAt(l,job,k,o);
       const use = pick==="auto" ? cap : Math.min(+pick, cap);
       const r=use>0?evaluate(l,job,k,mob,o,w,use):null;
-      const f=r=>!r?"—":r.immune?"inm":(r.best===r.worst?r.worst:`${r.best}–${r.worst}`);
-      return `<td><span class="hits ${r&&r.worst===1?"one":""}">${f(r)}</span><span class="dim mono" style="font-size:11.5px"> sk${use||0}</span>`+
-        `<div class="dim mono" style="font-size:11px">${r?fmt(r.mn*r.hits)+"–"+fmt(r.mx*r.hits):"sin SP"}</div></td>`;
+      const mp=(S[k].mp&&use>0)?S[k].mp[Math.min(use,S[k].mp.length)-1]:null;
+      return {k,use,r,mp};
+    });
+    let hits=Infinity, dmg=0;
+    cells.forEach(c=>{ if(c.r&&!c.r.immune){ hits=Math.min(hits,c.r.worst); dmg=Math.max(dmg,c.r.mx*c.r.hits); } });
+    return {w,cells,hits,dmg};
+  });
+  /* se agrupan por tipo de arma; el mejor tipo primero y dentro de cada uno, la mejor arma arriba */
+  const porTipo=new Map();
+  rows.forEach(r=>{ if(!porTipo.has(r.w.type)) porTipo.set(r.w.type,[]); porTipo.get(r.w.type).push(r); });
+  const grupos=[...porTipo.entries()].map(([tipo,arr])=>{
+    arr.sort((a,b)=> a.hits-b.hits || b.dmg-a.dmg || b.w.req-a.w.req);
+    return {tipo, arr, hits:arr[0].hits, dmg:arr[0].dmg};
+  }).sort((a,b)=> a.hits-b.hits || b.dmg-a.dmg);
+  const ncols=3+keys.length*3;
+  let idx=-1;
+  const body=grupos.map(g=>
+    `<tr class="tsep"><td colspan="${ncols}">${g.tipo}</td></tr>`+
+    g.arr.map(row=>{ idx++; return filaArma(row,idx); }).join("")
+  ).join("");
+
+  function filaArma(row,idx){
+    const w=row.w, am=ammoFor(w.type,o);
+    const cells=row.cells.map(c=>{
+      if(!c.r) return '<td class="num dim gs">—</td><td class="num dim">—</td><td class="num dim">—</td>';
+      if(c.r.immune) return '<td class="num dim gs" colspan="3">inmune</td>';
+      const one=c.r.worst===1;
+      const rango=c.r.best===c.r.worst?String(c.r.worst):c.r.best+"–"+c.r.worst;
+      const exp=mob.exp/c.r.worst;
+      const mpKill=c.mp!=null?c.mp*c.r.worst:null;
+      return `<td class="num gs"><span class="hits ${one?"one":""}">${rango}</span>`+
+             `<div class="dim mono sub">${fmt(c.r.mn*c.r.hits)}–${fmt(c.r.mx*c.r.hits)} · sk${c.use}</div></td>`+
+             `<td class="num">${exp>=10?Math.round(exp):exp.toFixed(1).replace(".",",")}</td>`+
+             `<td class="num ${mpKill==null?"dim":""}">${mpKill==null?"—":fmt(mpKill)}</td>`;
     }).join("");
-    const am=ammoFor(w.type,o);
-    return `<tr><td class="dim">${w.type}</td><td>${ic(wepImg(w.name),18)}${w.name}</td><td class="num">${w.req}</td><td class="num">${w[key]}${am?'<span class="dim"> +'+am+'</span>':""}</td>${cells}</tr>`;
+    return `<tr>
+      <td class="wcell">${ic(wepImg(w.name),20)}<span class="wname">${esc(w.name)}</span>${idx===0?'<span class="badge">mejor</span>':""}</td>
+      <td class="num">${w.req}</td>
+      <td class="num">${w[stat]}${am?'<span class="dim"> +'+am+'</span>':""}</td>
+      ${cells}</tr>`;
+  }
+
+  const cab=keys.map((k,gi)=>{
+    const g="g"+(gi%3), n=S[k].n;
+    return `<th class="num gs ${g}"><div class="skname">${ic(skImg(n),16)}${n}</div><div class="collbl">Golpes</div></th>`+
+           `<th class="num ${g}"><div class="skname">${n}</div><div class="collbl">EXP / casteo</div></th>`+
+           `<th class="num ${g}"><div class="skname">${n}</div><div class="collbl">MP / kill</div></th>`;
   }).join("");
-  out.innerHTML=`<table><thead><tr><th>Tipo</th><th>Arma</th><th class="num">Lv req</th><th class="num">${job.cls==="mage"?"Magia":"Ataque"}</th>${keys.map(k=>`<th>${ic(skImg(S[k].n),16)}${S[k].n}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`;
+  out.innerHTML=`<table class="grid">
+    <thead><tr>
+      <th>Arma</th><th class="num">Lv</th><th class="num">${job.cls==="mage"?"Magia":"Ataque"}</th>${cab}
+    </tr></thead>
+    <tbody>${body}</tbody></table>`;
+
   $("#leg-weapons").innerHTML=
-    `<span><strong>Golpes</strong>: veces que casteas la skill. Mejor caso–garantizado.</span>`+
-    `<span><strong>sk</strong>: nivel de skill usado, limitado por los SP de ese nivel.</span>`+
-    `<span>Debajo, el daño por casteo.</span>`+
-    `<span>En hachas, mazas, lanzas y polearms el swing y el stab tienen multiplicadores distintos, por eso el rango es más ancho.</span>`;
+    `<span>Agrupado por tipo de arma. Dentro de cada tipo, primero la que mata en menos casteos.</span>`+
+    `<span><strong>Golpes</strong>: veces que casteas la skill, mejor caso–garantizado. Debajo, el daño por casteo y el nivel de skill usado.</span>`+
+    `<span><strong>EXP / casteo</strong>: ${fmt(mob.exp)} de EXP repartidos entre los casteos garantizados.</span>`+
+    `<span><strong>MP / kill</strong>: maná del casteo por la cantidad de casteos.</span>`;
+}
+
+/* --- ranking: dónde farmear --- */
+function rkOpts(){
+  return {
+    wtype:"all", forced:null,
+    watk:+$("#rkWatk").value||0,
+    gatk:+$("#rkGatk").value||0,
+    mainBonus:+elMain.value||0,
+    secBonus:+($("#secbonus").value)||0,
+    ammoId:$("#rkAmmo").closest(".field").hidden?"base":($("#rkAmmo").value||"base"),
+    buff:elBuff.checked, mastery:elMastery.checked, skillMax:true, fixedLv:1
+  };
+}
+function syncRank(){
+  const job=currentJob(), o=rkOpts();
+  $("#rkLv").min=job.jobLv;
+  const lv=clamp(+$("#rkLv").value||job.jobLv, job.jobLv, 70);
+
+  const prevSk=$("#rkSk").value;
+  $("#rkSk").innerHTML=job.skills.map(k=>'<option value="'+k+'">'+S[k].n+'</option>').join("");
+  $("#rkSk").value=job.skills.includes(prevSk)?prevSk:job.skills[0];
+  const key=$("#rkSk").value;
+
+  const allow=S[key].wtypes;
+  const stat= job.cls==="mage"?"mad":"pad";
+  const list=WEPS.filter(w=>job.weapons.includes(w.type)&&(!allow||allow.includes(w.type))&&canEquip(lv,job,w,o.mainBonus))
+    .sort((a,b)=>wepScore(b,job,o,key)-wepScore(a,job,o,key));
+  const prevW=$("#rkWep").value;
+  $("#rkWep").innerHTML=list.map(w=>'<option value="'+w.name+'">Lv'+w.req+' · '+w.name+' ('+w[stat]+')</option>').join("")
+    || '<option value="">Sin arma equipable</option>';
+  $("#rkWep").value=list.some(w=>w.name===prevW)?prevW:(list[0]?list[0].name:"");
+
+  const cap=skillLevelAt(lv,job,key,{...o,skillMax:true});
+  const prevL=$("#rkSkLv").value;
+  let html="";
+  for(let i=cap;i>=1;i--) html+='<option value="'+i+'">sk '+i+(i===cap?' (tope de SP)':'')+'</option>';
+  $("#rkSkLv").innerHTML=html||'<option value="0">sin SP</option>';
+  $("#rkSkLv").value=(+prevL>=1&&+prevL<=cap)?prevL:String(cap||0);
+
+  const wt=$("#rkWep").value?WEPS.find(w=>w.name===$("#rkWep").value):null;
+  const grp=wt?AMMO_GROUP[wt.type]:null;
+  const wrap=$("#rkAmmo").closest(".field");
+  if(grp){
+    wrap.hidden=false;
+    const prevA=$("#rkAmmo").value;
+    $("#rkAmmo").innerHTML=AMMO.filter(a=>a.g===grp).map(a=>'<option value="'+a.id+'">'+a.n+' · +'+a.atk+' atk</option>').join("");
+    $("#rkAmmo").value=[...$("#rkAmmo").options].some(op=>op.value===prevA)?prevA:BASE_AMMO[grp];
+    const a=ammoById($("#rkAmmo").value);
+    $("#rkAmmoIc").innerHTML=a?ic(ammoImg(a.id),16):"";
+  } else { wrap.hidden=true; $("#rkAmmo").innerHTML=""; $("#rkAmmoIc").innerHTML=""; }
+}
+
+function renderRank(){
+  const job=currentJob(), o=rkOpts();
+  const out=$("#out-rank");
+  const lv=clamp(+$("#rkLv").value||job.jobLv, job.jobLv, 70);
+  const key=$("#rkSk").value||job.skills[0];
+  const wep=WEPS.find(w=>w.name===$("#rkWep").value);
+  const slv=+$("#rkSkLv").value||0;
+  if(!wep||slv<1){ out.innerHTML='<p class="empty">Elige un arma y un nivel de skill.</p>'; $("#leg-rank").innerHTML=""; return; }
+
+  const sortBy=$("#rkSort").value, hitsF=+$("#rkHits").value, onlyHit=$("#rkHit").checked;
+  let rows=[];
+  MOBS.filter(enVictoria).forEach(m=>{
+    const r=evaluate(lv,job,key,m,o,wep,slv);
+    if(!r||r.immune) return;
+    if(onlyHit && r.pHit<0.8) return;
+    if(hitsF===4 ? r.worst<4 : (hitsF && r.worst!==hitsF)) return;
+    rows.push({m,r,exp:m.exp/r.worst});
+  });
+  rows.sort((a,b)=>{
+    if(sortBy==="hits") return a.r.worst-b.r.worst || b.exp-a.exp;
+    if(sortBy==="total") return b.m.exp-a.m.exp;
+    if(sortBy==="level") return b.m.level-a.m.level;
+    return b.exp-a.exp || a.r.worst-b.r.worst;
+  });
+  const top=rows.slice(0,30);
+  if(!top.length){ out.innerHTML='<p class="empty">Ningún monstruo pasa esos filtros.</p>'; $("#leg-rank").innerHTML=""; return; }
+
+  const mp=S[key].mp?S[key].mp[Math.min(slv,S[key].mp.length)-1]:null;
+  const body=top.map((x,i)=>{
+    const one=x.r.worst===1;
+    const rango=x.r.best===x.r.worst?String(x.r.worst):x.r.best+"–"+x.r.worst;
+    return `<tr>
+      <td class="num dim">${i+1}</td>
+      <td class="wcell">${mobImg(x.m.id)?'<img class="ic" src="'+mobImg(x.m.id)+'" style="height:26px">':""}<span class="wname">${esc(x.m.name)}</span>
+        <div class="dim sub">Lv ${x.m.level} · ${fmt(x.m.hp)} HP</div></td>
+      <td class="num"><span class="hits ${one?"one":""}">${rango}</span>
+        <div class="dim mono sub">${fmt(x.r.mn*x.r.hits)}–${fmt(x.r.mx*x.r.hits)}</div></td>
+      <td class="num"><strong>${x.exp>=10?Math.round(x.exp):x.exp.toFixed(1).replace(".",",")}</strong></td>
+      <td class="num dim">${fmt(x.m.exp)}</td>
+      <td class="num">${mp!=null?fmt(mp*x.r.worst):"—"}</td>
+      <td class="num ${x.r.pHit<0.95?"dim":""}">${pct(x.r.pHit)}</td>
+      <td class="dim sub">${esc(MAPA[x.m.id]||"—")}</td>
+    </tr>`;
+  }).join("");
+
+  out.innerHTML=`<table class="grid">
+    <thead><tr><th class="num">#</th><th>Monstruo</th><th class="num">Golpes</th>
+    <th class="num">EXP / casteo</th><th class="num">EXP total</th><th class="num">MP / kill</th>
+    <th class="num">Acierto</th><th>Mapa</th></tr></thead>
+    <tbody>${body}</tbody></table>`;
+
+  $("#leg-rank").innerHTML=
+    `<span>${S[key].n} nivel ${slv} con ${wep.name}${mp?", "+mp+" MP por casteo":""}.</span>`+
+    `<span><strong>EXP / casteo</strong>: la EXP del monstruo dividida entre los casteos garantizados.</span>`+
+    `<span>Solo monstruos de Maple Island y Victoria, sin jefes. ${rows.length} pasan el filtro, se muestran los 30 mejores.</span>`+
+    `<span><strong>Mapa</strong>: el mapa con más spawns de ese monstruo.</span>`;
 }
 
 /* --- notas --- */
@@ -1064,6 +1340,22 @@ function renderNotes(job,o){
 }
 
 /* --- tabs --- */
+/* buscador de monstruo: lista propia con scroll e imágenes */
+elMob.addEventListener("focus",()=>{ renderPicker(""); openPicker(); elMob.select(); });
+elMob.addEventListener("input",()=>{ renderPicker(elMob.value); openPicker(); });
+elMob.addEventListener("blur",()=>setTimeout(closePicker,120));
+elMob.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ closePicker(); return; }
+  const items=[...elOpts.querySelectorAll(".opt[data-i]")];
+  if(!items.length) return;
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+    e.preventDefault();
+    pickIdx = clamp(pickIdx + (e.key==="ArrowDown"?1:-1), 0, items.length-1);
+    items.forEach((el,i)=>el.classList.toggle("active", i===pickIdx));
+    items[pickIdx].scrollIntoView({block:"nearest"});
+  } else if(e.key==="Enter" && pickIdx>=0){ e.preventDefault(); choose(pickIdx); }
+});
+
 elSkillMax.addEventListener("change",()=>{ $("#wrapSkillLv").hidden=elSkillMax.checked; });
 
 let _rt=null;
@@ -1074,15 +1366,25 @@ function render(){
   if(mob){
     renderVerdict(mob,job,o);
     renderWeapons(mob,job,o);
+    renderRank();
   } else {
     $("#verdict").innerHTML="";
     $("#out-weapons").innerHTML='<p class="empty">Elige un monstruo de la lista.</p>';
+    renderRank();
   }
   renderNotes(job,o);
-  $("#foot").innerHTML='Fórmulas y datos de monstruos, skills y armas: OSMS Data Explorer · munición: NiaMeowDB. Hecho para NaranjoCL.';
+  $("#foot").innerHTML=
+    'Monstruos, skills, armas y fórmulas de daño extraídas del cliente del juego. Golpes por casteo y munición verificados contra el Character Builder.'+
+    '<span class="src"><a href="https://osmsdataexplorer.com" target="_blank" rel="noopener">OSMS Data Explorer</a>'+
+    '<a href="https://meowdb.com/msclassic" target="_blank" rel="noopener">NiaMeowDB</a>'+
+    '<span>Hecho para NaranjoCL</span></span>';
 }
 
-[elMob,elJob,elAmmo,elWatk,elGatk,elMain,$("#secbonus"),elBuff,elMastery,elSkillMax,elSkillLv,elCmpLv,$("#cmpSk")].forEach(el=>{
+["#rkLv","#rkWep","#rkSk","#rkSkLv","#rkAmmo","#rkWatk","#rkGatk","#rkSort","#rkHits","#rkHit"].map(s=>$(s)).forEach(el=>{
+  const h=()=>{ if(["rkLv","rkSk","rkWep","rkAmmo"].includes(el.id)) syncRank(); scheduleRender(); };
+  el.addEventListener("input",h); el.addEventListener("change",h);
+});
+[elMob,elJob,elAmmo,elWatk,elGatk,elMain,$("#secbonus"),elBuff,elMastery,elSkillMax,elSkillLv,elCmpLv,$("#cmpSk"),$("#cmpWt")].forEach(el=>{
   const h=()=>{
     if(el===elJob) syncJobControls();
     else if(el===elAmmo) syncAmmo(elAmmo.value);
@@ -1091,8 +1393,15 @@ function render(){
   };
   el.addEventListener("input",h); el.addEventListener("change",h);
 });
+[elCmpLv,$("#rkLv")].forEach(el=>el.addEventListener("blur",()=>{
+  const job=currentJob();
+  const v=clamp(+el.value||job.jobLv, job.jobLv, 70);
+  if(String(v)!==el.value){ el.value=v; syncCmpSk(); syncRank(); render(); }
+}));
 syncJobControls();
+syncCmpWt();
 syncCmpSk();
+syncRank();
 render();
 </script>
 
