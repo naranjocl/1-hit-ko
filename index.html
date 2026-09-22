@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Cuántos golpes necesita cada clase para matar a cada monstruo de MapleStory Classic, con los breakpoints de 1 hit por nivel, skill y arma.">
+<meta name="description" content="Cuántos golpes necesita cada clase para matar a cada monstruo de MapleStory Classic, arma por arma.">
 <title>Calculadora de Golpes MapleStory</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -166,26 +166,12 @@ details.notes li{margin-bottom:5px; font-size:13px; color:var(--muted)}
         <select id="job"></select>
       </div>
       <div class="field">
-        <label for="wtype">Tipo de arma</label>
-        <select id="wtype"></select>
-      </div>
-      <div class="field">
-        <label for="wmode">Arma</label>
-        <select id="wmode">
-          <option value="auto">Mejor del bracket (auto)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="watk">Ataque extra del arma</label>
-        <input id="watk" type="number" value="0" min="0" max="200" step="1">
-      </div>
-      <div class="field">
-        <label for="gatk">Ataque de equipo</label>
-        <input id="gatk" type="number" value="0" min="0" max="200" step="1">
-      </div>
-      <div class="field">
         <label for="mainbonus">Stat principal extra</label>
         <input id="mainbonus" type="number" value="0" min="0" max="300" step="1">
+      </div>
+      <div class="field">
+        <label for="secbonus">Stat secundario extra</label>
+        <input id="secbonus" type="number" value="0" min="0" max="300" step="1">
       </div>
     </div>
     <div class="toggles">
@@ -202,32 +188,20 @@ details.notes li{margin-bottom:5px; font-size:13px; color:var(--muted)}
 
   <div class="verdict" id="verdict" style="margin-top:18px"></div>
 
-  <div class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="levels">Golpes por nivel</button>
-    <button role="tab" aria-selected="false" data-tab="breaks">Breakpoints de 1 hit</button>
-    <button role="tab" aria-selected="false" data-tab="weapons">Comparar armas</button>
-    <button role="tab" aria-selected="false" data-tab="sklv">Golpes por nivel de skill</button>
-  </div>
-
-  <section class="panel" id="panel-levels"><div class="scroller" id="out-levels"></div><div class="pad legend" id="leg-levels"></div></section>
-  <section class="panel" id="panel-breaks" hidden><div class="scroller" id="out-breaks"></div><div class="pad legend" id="leg-breaks"></div></section>
-  <section class="panel" id="panel-weapons" hidden>
-    <div class="pad" style="display:flex; gap:14px; align-items:end; flex-wrap:wrap; border-bottom:1px solid var(--line-soft)">
+  <section class="panel" id="panel-weapons">
+    <div class="pad" style="border-bottom:1px solid var(--line-soft)">
+      <p class="eyebrow">General</p>
+      <h2 style="margin:2px 0 14px">Todas las armas a un nivel</h2>
+      <div style="display:flex; gap:14px; align-items:end; flex-wrap:wrap">
       <div class="field" style="max-width:150px"><label for="cmpLv">Nivel del personaje</label><input id="cmpLv" type="number" value="15" min="10" max="70"></div>
       <div class="field" style="max-width:190px"><label for="cmpSk">Nivel de skill</label><select id="cmpSk"></select></div>
       <div class="field" style="max-width:250px"><label for="ammo">Munición <span id="ammoIc"></span></label><select id="ammo"></select></div>
-      <p class="dim" style="margin:0; font-size:13px; flex:1 1 200px">Todas las armas equipables a ese nivel. Haz clic en una fila para ver sus tramos de golpes.</p>
+      <div class="field" style="max-width:150px"><label for="watk">Ataque extra del arma</label><input id="watk" type="number" value="0" min="0" max="200" step="1"></div>
+      <div class="field" style="max-width:150px"><label for="gatk">Ataque de equipo</label><input id="gatk" type="number" value="0" min="0" max="200" step="1"></div>
+      </div>
     </div>
     <div class="scroller" id="out-weapons"></div>
-  </section>
-
-  <section class="panel" id="panel-sklv" hidden>
-    <div class="pad" style="display:flex; gap:14px; align-items:end; flex-wrap:wrap; border-bottom:1px solid var(--line-soft)">
-      <div class="field" style="max-width:150px"><label for="skLv">Nivel del personaje</label><input id="skLv" type="number" value="15" min="8" max="70"></div>
-      <div class="field" style="max-width:280px"><label for="skWep">Arma</label><select id="skWep"></select></div>
-      <p class="dim" style="margin:0; font-size:13px; flex:1 1 220px">En qué nivel exacto de skill bajas de 4 a 3, de 3 a 2 y de 2 a 1 golpe.</p>
-    </div>
-    <div id="out-sklv"></div>
+    <div class="pad legend" id="leg-weapons"></div>
   </section>
 
   <details class="notes panel pad" style="margin-top:18px">
@@ -695,7 +669,7 @@ const ELNAME={F:"Fuego",I:"Hielo",L:"Rayo",H:"Sagrado",P:"Veneno"};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const jobById=id=>JOBS.find(j=>j.id===id);
 
-function statsAt(level, job, wep, bonus){
+function statsAt(level, job, wep, bonus, secBonus){
   // MapleStory reparte 25 puntos al nivel 1 y 5 por nivel. Con los 4 stats en 4 de base,
   // quedan libres 25 - 16 + 5 × (nivel - 1) para repartir.
   const base={str:4,dex:4,int:4,luk:4};
@@ -707,9 +681,11 @@ function statsAt(level, job, wep, bonus){
     st[k]+=need; ap-=need;
   }
   st[job.prim]+=ap+(bonus||0);
+  if(secBonus) st[job.secStat]+=secBonus;
   return st;
 }
 function canEquip(level,job,w,bonus){ return w.req<=level && !!statsAt(level,job,w,bonus); }
+JOBS.forEach(j=>{ j.secStat = j.cls==="warrior"?"dex" : j.cls==="mage"?"luk" : j.cls==="archer"?"str" : "dex"; });
 
 const BASE_AMMO={star:"2070000",bow:"2060000",xbow:"2061000"};
 function ammoFor(type,o){
@@ -771,7 +747,7 @@ function elMult(mob, el){
 
 function rawDamage(level, job, key, slv, wep, o){
   const sk=S[key];
-  const st=statsAt(level,job,wep,o.mainBonus);
+  const st=statsAt(level,job,wep,o.mainBonus,o.secBonus);
   if(!st||slv<1) return null;
   if(sk.k==="magic"){
     const INT=st.int;
@@ -868,7 +844,7 @@ const $=s=>document.querySelector(s);
 const fmt=n=>n.toLocaleString("es-CL");
 const pct=p=>Math.round(p*100)+"%";
 
-const elMob=$("#mob"), elJob=$("#job"), elWtype=$("#wtype"), elWmode=$("#wmode"),
+const elMob=$("#mob"), elJob=$("#job"),
       elAmmo=$("#ammo"), elWatk=$("#watk"), elGatk=$("#gatk"), elMain=$("#mainbonus"),
       elBuff=$("#tgBuff"), elMastery=$("#tgMastery"), elSkillMax=$("#tgSkillMax"),
       elSkillLv=$("#skillLv"), elCmpLv=$("#cmpLv");
@@ -890,19 +866,30 @@ function openPicker(){ elOpts.classList.add("open"); elMob.setAttribute("aria-ex
 function closePicker(){ elOpts.classList.remove("open"); elMob.setAttribute("aria-expanded","false"); }
 function choose(i){ const m=pickList[i]; if(!m) return; elMob.value=m.name; closePicker(); render(); }
 elOpts.addEventListener("mousedown",e=>{ const o=e.target.closest(".opt"); if(!o||!o.dataset.i) return; e.preventDefault(); choose(+o.dataset.i); });
-JOBS.forEach(j=>{ const o=document.createElement("option"); o.value=j.id; o.textContent=j.label; elJob.appendChild(o); });
+const JOB_GROUPS=[
+  ["Primer job",["warrior1","mage1","rogue1","archer1"]],
+  ["Segundo job · Guerrero",["fighter","page","spearman"]],
+  ["Segundo job · Mago",["fp","il","cleric"]],
+  ["Segundo job · Ladrón",["assassin","bandit"]],
+  ["Segundo job · Arquero",["hunter","crossbowman"]]
+];
+JOB_GROUPS.forEach(([label,ids])=>{
+  const g=document.createElement("optgroup"); g.label=label;
+  ids.forEach(id=>{ const j=jobById(id); const o=document.createElement("option"); o.value=j.id; o.textContent=j.label; g.appendChild(o); });
+  elJob.appendChild(g);
+});
 elMob.value="Slime"; elJob.value="mage1";
 
 function currentJob(){ return jobById(elJob.value); }
 
 function syncJobControls(){
   const job=currentJob();
-  elWtype.innerHTML="";
-  const all=document.createElement("option"); all.value="all"; all.textContent="Todas (la mejor)"; elWtype.appendChild(all);
-  [...new Set(job.weapons)].forEach(t=>{ const o=document.createElement("option"); o.value=t; o.textContent=t; elWtype.appendChild(o); });
   syncAmmo();
+  const SN={str:"STR",dex:"DEX",int:"INT",luk:"LUK"};
   $("#mainbonus").closest(".field").querySelector("label").textContent =
-    "Stat extra ("+({str:"STR",dex:"DEX",int:"INT",luk:"LUK"})[job.prim]+" de equipo)";
+    "Stat principal ("+SN[job.prim]+" de equipo)";
+  $("#secbonus").closest(".field").querySelector("label").textContent =
+    "Stat secundario ("+SN[job.secStat]+" de equipo)"+(job.cls==="mage"?" · solo precisión":"");
   $("#watk").closest(".field").querySelector("label").textContent =
     job.cls==="mage" ? "Magia extra del arma" : "Ataque extra del arma";
   $("#gatk").closest(".field").querySelector("label").textContent =
@@ -911,34 +898,14 @@ function syncJobControls(){
   elBuff.closest(".tg").hidden=!b;
   if(b) elBuff.nextElementSibling.textContent = b.label+" activo";
   elMastery.closest(".tg").hidden=!job.mastery;
-  syncWeaponList();
-  $("#skLv").min=job.jobLv;
-  if(+$("#skLv").value<job.jobLv) $("#skLv").value=job.jobLv;
-  syncSkWep("auto");
   elCmpLv.min=job.jobLv;
   if(+elCmpLv.value<job.jobLv) elCmpLv.value=job.jobLv;
   syncCmpSk();
   if(+elCmpLv.value<job.jobLv) elCmpLv.value=job.jobLv;
 }
 
-function syncWeaponList(){
-  const job=currentJob(), tf=elWtype.value||"all";
-  const prev=elWmode.value;
-  const key= job.cls==="mage"?"mad":"pad";
-  const list=WEPS.filter(w=>job.weapons.includes(w.type)&&(tf==="all"||w.type===tf))
-    .sort((a,b)=>a.req-b.req||b[key]-a[key]);
-  elWmode.innerHTML="";
-  const a=document.createElement("option"); a.value="auto"; a.textContent="Mejor del bracket (auto)"; elWmode.appendChild(a);
-  list.forEach(w=>{
-    const o=document.createElement("option"); o.value=w.name;
-    o.textContent=`Lv${w.req} · ${w.name} (${w[key]})`;
-    elWmode.appendChild(o);
-  });
-  elWmode.value = [...elWmode.options].some(o=>o.value===prev) ? prev : "auto";
-}
-
 function syncAmmo(keep){
-  const job=currentJob(), tf=elWtype.value||"all";
+  const job=currentJob(), tf="all";
   const wrap=elAmmo.closest(".field");
   const types=job.weapons.filter(w=>AMMO_GROUP[w] && (tf==="all"||w===tf));
   const groups=[...new Set(types.map(w=>AMMO_GROUP[w]))];
@@ -958,11 +925,12 @@ function syncAmmo(keep){
 
 function opts(){
   return {
-    wtype:elWtype.value||"all",
-    forced:(elWmode.value&&elWmode.value!=="auto")?elWmode.value:null,
-    watk:+elWatk.value||0,
-    gatk:+elGatk.value||0,
+    wtype:"all",
+    forced:null,
+    watk:0,
+    gatk:0,
     mainBonus:+elMain.value||0,
+    secBonus:+($("#secbonus").value)||0,
     ammoId:"base",
     buff:elBuff.checked,
     mastery:elMastery.checked,
@@ -979,12 +947,6 @@ function levelRange(job){
 }
 
 /* --- ficha del monstruo --- */
-function ammoNote(job){
-  const g=[...new Set(job.weapons.map(w=>AMMO_GROUP[w]).filter(Boolean))];
-  if(!g.length) return "";
-  const n=g.map(x=>x==="star"?"Subi Throwing Stars (+15)":(x==="bow"?"Arrows for Bows (+0)":"Arrows for Crossbows (+0)")).join(" y ");
-  return `<span>Munición base: ${n}. Cámbiala en <strong>Comparar armas</strong>.</span>`;
-}
 function renderMob(mob){
   const box=$("#mobcard");
   if(!mob){ box.innerHTML='<p class="dim" style="margin:0">Escribe el nombre de un monstruo (en inglés, como aparece en el juego).</p>'; return; }
@@ -1031,71 +993,6 @@ function renderVerdict(mob, job, o){
   });
 }
 
-/* --- tab 1: golpes por nivel --- */
-function renderLevels(mob, job, o){
-  const out=$("#out-levels");
-  if(!mob){ out.innerHTML='<p class="empty">Elige un monstruo.</p>'; return; }
-  const keys=job.skills;
-  let rows="", done=false;
-  for(const l of levelRange(job)){
-    if(done) break;
-    const cells=keys.map(k=>{
-      const r=evaluate(l,job,k,mob,o);
-      if(!r) return '<td class="dim">—</td>';
-      if(r.immune) return '<td class="dim">inmune</td>';
-      const one=r.worst===1;
-      const range=r.best===r.worst?`${r.worst}`:`${r.best}–${r.worst}`;
-      return `<td><span class="hits ${one?"one":""}">${range}</span>`+
-             `<span class="dim mono" style="font-size:11.5px"> sk${r.slv}</span>`+
-             `<div class="dim mono" style="font-size:11px">${fmt(r.mn)}–${fmt(r.mx)}${r.hits>1?" ×"+r.hits:""} · ${ic(wepImg(r.wep.name),14)}${r.wep.name}</div></td>`;
-    }).join("");
-    const ref=evaluate(l,job,keys[0],mob,o);
-    const allOne=keys.every(k=>{const r=evaluate(l,job,k,mob,o); return r&&(r.worst===1);});
-    if(allOne) done=true;
-    rows+=`<tr class="${allOne?"milestone":""}"><td class="lv">${l}</td>${cells}<td class="num">${ref?pct(ref.pHit):"—"}</td></tr>`;
-  }
-  out.innerHTML=`<table><thead><tr><th>Lv</th>${keys.map(k=>`<th>${ic(skImg(S[k].n),16)}${S[k].n}</th>`).join("")}<th class="num">Acierto</th></tr></thead><tbody>${rows}</tbody></table>`;
-  $("#leg-levels").innerHTML=
-    `<span><strong>Golpes</strong>: mejor caso–peor caso (daño máx–mín).</span>`+
-    `<span><strong>sk</strong>: nivel de skill con los SP disponibles a ese nivel.</span>`+
-    `<span><strong>Acierto</strong>: probabilidad de pegarle (fórmula de accuracy vs evasión).</span>`+
-    `<span>La tabla corta cuando ya matas de 1 hit garantizado.</span>`+ammoNote(job);
-}
-
-/* --- tab 2: breakpoints --- */
-function renderBreaks(mob, job, o){
-  const out=$("#out-breaks");
-  if(!mob){ out.innerHTML='<p class="empty">Elige un monstruo.</p>'; return; }
-  const keys=job.skills;
-  let rows="", stop=false;
-  for(const l of levelRange(job)){
-    if(stop) break;
-    let allEasy=true;
-    const cells=keys.map(k=>{
-      const sk=S[k];
-      const capped=skillLevelAt(l,job,k,o);
-      let need=null;
-      for(let s=1;s<=sk.max;s++){
-        const r=evaluate(l,job,k,mob,o,null,s);
-        if(r&&!r.immune&&r.worst===1){ need=s; break; }
-      }
-      if(need===null){ allEasy=false; return '<td class="dim">no llega</td>'; }
-      if(need>1) allEasy=false;
-      const ok=capped>=need;
-      return `<td><span class="hits ${ok?"one":""}">${need}</span>`+
-        (ok?'<span class="badge">te alcanzan los SP</span>':`<span class="badge acc">tope ${capped} SP</span>`)+`</td>`;
-    }).join("");
-    if(allEasy) stop=true;
-    const ref=evaluate(l,job,keys[0],mob,o);
-    rows+=`<tr class="${allEasy?"milestone":""}"><td class="lv">${l}</td>${cells}<td class="dim">${ref?ic(wepImg(ref.wep.name),15)+ref.wep.name:"—"}</td></tr>`;
-  }
-  out.innerHTML=`<table><thead><tr><th>Lv</th>${keys.map(k=>`<th>${ic(skImg(S[k].n),16)}${S[k].n}: skill mínima</th>`).join("")}<th>Arma</th></tr></thead><tbody>${rows}</tbody></table>`;
-  $("#leg-breaks").innerHTML=
-    `<span>Nivel mínimo de la skill para matarlo de <strong>1 hit garantizado</strong> a ese nivel de personaje.</span>`+
-    `<span><strong>alcanzable</strong>: te alcanzan los SP si pones todo ahí.</span>`+
-    `<span>La tabla corta cuando ya lo matas con la skill en nivel 1.</span>`+ammoNote(job);
-}
-
 /* --- tab 3: comparar armas --- */
 function syncCmpSk(){
   const job=currentJob(), o=opts();
@@ -1109,7 +1006,8 @@ function syncCmpSk(){
 }
 function withAmmo(o){
   const f=elAmmo.closest(".field");
-  return (f && !f.hidden && elAmmo.value) ? {...o, ammoId:elAmmo.value} : o;
+  const extra={watk:+elWatk.value||0, gatk:+elGatk.value||0};
+  return (f && !f.hidden && elAmmo.value) ? {...o, ...extra, ammoId:elAmmo.value} : {...o, ...extra};
 }
 function renderWeapons(mob, job, o){
   o=withAmmo(o);
@@ -1132,65 +1030,14 @@ function renderWeapons(mob, job, o){
         `<div class="dim mono" style="font-size:11px">${r?fmt(r.mn*r.hits)+"–"+fmt(r.mx*r.hits):"sin SP"}</div></td>`;
     }).join("");
     const am=ammoFor(w.type,o);
-    return `<tr data-wep="${w.name}" style="cursor:pointer" title="Ver golpes por nivel de skill"><td class="dim">${w.type}</td><td>${ic(wepImg(w.name),18)}${w.name}</td><td class="num">${w.req}</td><td class="num">${w[key]}${am?'<span class="dim"> +'+am+'</span>':""}</td>${cells}</tr>`;
+    return `<tr><td class="dim">${w.type}</td><td>${ic(wepImg(w.name),18)}${w.name}</td><td class="num">${w.req}</td><td class="num">${w[key]}${am?'<span class="dim"> +'+am+'</span>':""}</td>${cells}</tr>`;
   }).join("");
   out.innerHTML=`<table><thead><tr><th>Tipo</th><th>Arma</th><th class="num">Lv req</th><th class="num">${job.cls==="mage"?"Magia":"Ataque"}</th>${keys.map(k=>`<th>${ic(skImg(S[k].n),16)}${S[k].n}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`;
-  out.querySelectorAll("tr[data-wep]").forEach(tr=>tr.addEventListener("click",()=>{
-    $("#skLv").value=l; syncSkWep(tr.dataset.wep); showTab("sklv"); render();
-  }));
-}
-
-/* --- tab 4: golpes por nivel de skill --- */
-function syncSkWep(sel){
-  const job=currentJob(), o=opts();
-  const l=clamp(+$("#skLv").value||job.jobLv, job.jobLv, 70);
-  const key= job.cls==="mage"?"mad":"pad";
-  const list=WEPS.filter(w=>job.weapons.includes(w.type)&&canEquip(l,job,w,o.mainBonus))
-    .sort((a,b)=>b.req-a.req||b[key]-a[key]);
-  const prev=sel||$("#skWep").value;
-  $("#skWep").innerHTML='<option value="auto">Mejor de ese nivel (auto)</option>'+
-    list.map(w=>'<option value="'+w.name+'">Lv'+w.req+' · '+w.name+' ('+w[key]+')</option>').join("");
-  $("#skWep").value=[...$("#skWep").options].some(op=>op.value===prev)?prev:"auto";
-}
-function renderSkLv(mob, job, o){
-  o=withAmmo(o);
-  const out=$("#out-sklv");
-  if(!mob){ out.innerHTML='<p class="empty">Elige un monstruo.</p>'; return; }
-  const l=clamp(+$("#skLv").value||job.jobLv, job.jobLv, 70);
-  const sel=$("#skWep").value;
-  const blocks=job.skills.map(key=>{
-    const sk=S[key];
-    const forced = sel&&sel!=="auto" ? WEPS.find(w=>w.name===sel) : null;
-    const cap=skillLevelAt(l,job,key,o);
-    if(cap<1) return `<div><h3>${ic(skImg(sk.n),22)}${sk.n}</h3><p class="dim">A nivel ${l} no te alcanzan los SP para esta skill.</p></div>`;
-    const rows=[]; let cur=null;
-    for(let s=1;s<=cap;s++){
-      const r=evaluate(l,job,key,mob,o,forced,s);
-      if(!r){ cur=null; continue; }
-      if(r.immune) return `<div><h3>${ic(skImg(sk.n),22)}${sk.n}</h3><p class="dim">${mob.name} es inmune a ${ELNAME[sk.el]}.</p></div>`;
-      if(cur && cur.worst===r.worst && cur.best===r.best){ cur.to=s; cur.r=r; }
-      else { cur={from:s,to:s,worst:r.worst,best:r.best,r}; rows.push(cur); }
-    }
-    if(!rows.length) return `<div><h3>${ic(skImg(sk.n),22)}${sk.n}</h3><p class="dim">No puedes usar esa arma con esta skill a nivel ${l}.</p></div>`;
-    const body=rows.map(g=>{
-      const one=g.worst===1;
-      return `<tr class="${cap>=g.from&&cap<=g.to?"milestone":""}">
-        <td><span class="hits ${one?"one":""}">${g.worst}</span>${g.best!==g.worst?`<span class="dim mono" style="font-size:12px"> (${g.best} con suerte)</span>`:""}</td>
-        <td class="num">${g.from===g.to?"sk "+g.from:"sk "+g.from+"–"+g.to}</td>
-        <td class="num dim">${fmt(g.r.mn*g.r.hits)}–${fmt(g.r.mx*g.r.hits)}</td>
-        <td class="dim">${ic(wepImg(g.r.wep.name),15)}${g.r.wep.name}</td></tr>`;
-    }).join("");
-    return `<div><h3>${ic(skImg(sk.n),22)}${sk.n}</h3>
-      <div class="scroller"><table><thead><tr><th>Golpes garantizados</th><th class="num">Nivel de skill</th><th class="num">Daño por casteo</th><th>Arma</th></tr></thead><tbody>${body}</tbody></table></div></div>`;
-  }).join("");
-  out.innerHTML=`<div class="grp">${blocks}</div>
-    <div class="pad legend">
-      <span>Cada fila dice desde qué nivel de skill bajas de golpes.</span>
-      <span>Solo se listan los niveles de skill que puedes tener a nivel ${l}: tope ${clamp(1+3*(l-(job.tier===2?30:10)),0,99)} SP.</span>
-      <span>La fila marcada es la que tienes con todos los SP puestos ahí.</span>
-      ${(()=>{const a=ammoById(o.ammoId); return a?"<span>Munición: "+a.n+" (+"+a.atk+").</span>":"";})()}
-      <span><strong>Golpes garantizados</strong>: con el daño mínimo. Entre paréntesis, con el daño máximo.</span>
-    </div>`;
+  $("#leg-weapons").innerHTML=
+    `<span><strong>Golpes</strong>: veces que casteas la skill. Mejor caso–garantizado.</span>`+
+    `<span><strong>sk</strong>: nivel de skill usado, limitado por los SP de ese nivel.</span>`+
+    `<span>Debajo, el daño por casteo.</span>`+
+    `<span>En hachas, mazas, lanzas y polearms el swing y el stab tienen multiplicadores distintos, por eso el rango es más ancho.</span>`;
 }
 
 /* --- notas --- */
@@ -1209,34 +1056,14 @@ function renderNotes(job,o){
     "Munición: el ataque de las throwing stars se suma al de la claw (Subi +15 … Hwabi +29). Las flechas suman 0–3 al arco o la ballesta. Las flechas de arco no sirven en ballesta ni al revés.",
     "Acierto: suma las pasivas de precisión maxeadas (Guerrero +20, Ladrón +15). Sin ellas, y sin DEX de equipo, el acierto baja mucho contra mobs de nivel alto.",
     "En hachas, mazas, lanzas y polearms el swing y el stab tienen multiplicadores distintos, y el juego los alterna: por eso el rango de golpes es más ancho con esas armas.",
-    "El arma automática es la de mayor daño real para esa skill entre las equipables a ese nivel, contando el multiplicador del arma y la munición."
+    "El arma automática es la de mayor daño real para esa skill entre las equipables a ese nivel, contando el multiplicador del arma y la munición.",
+    "El stat secundario también entra en la fórmula física: DEX en guerreros, STR en arqueros, STR y DEX en ladrones. En magos el LUK no suma daño mágico, solo precisión y requisitos de equipo.",
+    "Arriba solo eliges monstruo, clase y los stats que te dé el equipo que no es arma. El arma, la munición, los scrolls y el ataque de equipo se ajustan en Comparar armas, y afectan a esa vista y a la de golpes por nivel de skill."
   ];
   $("#assumptions").innerHTML=li.map(t=>`<li>${t}</li>`).join("");
 }
 
 /* --- tabs --- */
-const TABS=["levels","breaks","weapons","sklv"];
-function showTab(name){
-  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected", String(x.dataset.tab===name)));
-  TABS.forEach(t=>{ $("#panel-"+t).hidden = t!==name; });
-}
-document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
-
-/* buscador de monstruo con scroll e imágenes */
-elMob.addEventListener("focus",()=>{ renderPicker(""); openPicker(); elMob.select(); });
-elMob.addEventListener("input",()=>{ renderPicker(elMob.value); openPicker(); });
-elMob.addEventListener("blur",()=>setTimeout(closePicker,120));
-elMob.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){ closePicker(); return; }
-  const items=[...elOpts.querySelectorAll(".opt[data-i]")];
-  if(!items.length) return;
-  if(e.key==="ArrowDown"||e.key==="ArrowUp"){
-    e.preventDefault();
-    pickIdx = clamp(pickIdx + (e.key==="ArrowDown"?1:-1), 0, items.length-1);
-    items.forEach((el,i)=>el.classList.toggle("active", i===pickIdx));
-    items[pickIdx].scrollIntoView({block:"nearest"});
-  } else if(e.key==="Enter" && pickIdx>=0){ e.preventDefault(); choose(pickIdx); }
-});
 elSkillMax.addEventListener("change",()=>{ $("#wrapSkillLv").hidden=elSkillMax.checked; });
 
 let _rt=null;
@@ -1246,31 +1073,25 @@ function render(){
   renderMob(mob);
   if(mob){
     renderVerdict(mob,job,o);
-    renderLevels(mob,job,o);
-    renderBreaks(mob,job,o);
     renderWeapons(mob,job,o);
-    renderSkLv(mob,job,o);
   } else {
-    $("#verdict").innerHTML=""; $("#out-levels").innerHTML='<p class="empty">Elige un monstruo de la lista.</p>';
-    $("#out-breaks").innerHTML=""; $("#out-weapons").innerHTML=""; $("#out-sklv").innerHTML="";
+    $("#verdict").innerHTML="";
+    $("#out-weapons").innerHTML='<p class="empty">Elige un monstruo de la lista.</p>';
   }
   renderNotes(job,o);
   $("#foot").innerHTML='Fórmulas y datos de monstruos, skills y armas: OSMS Data Explorer · munición: NiaMeowDB. Hecho para NaranjoCL.';
 }
 
-[elMob,elJob,elWtype,elWmode,elAmmo,elWatk,elGatk,elMain,elBuff,elMastery,elSkillMax,elSkillLv,elCmpLv,$("#cmpSk"),$("#skLv"),$("#skWep")].forEach(el=>{
+[elMob,elJob,elAmmo,elWatk,elGatk,elMain,$("#secbonus"),elBuff,elMastery,elSkillMax,elSkillLv,elCmpLv,$("#cmpSk")].forEach(el=>{
   const h=()=>{
     if(el===elJob) syncJobControls();
-    else if(el===elWtype){ syncWeaponList(); syncAmmo(); }
     else if(el===elAmmo) syncAmmo(elAmmo.value);
-    else if(el===$("#skLv")) syncSkWep();
     else if(el===elCmpLv) syncCmpSk();
     scheduleRender();
   };
   el.addEventListener("input",h); el.addEventListener("change",h);
 });
 syncJobControls();
-syncSkWep();
 syncCmpSk();
 render();
 </script>
